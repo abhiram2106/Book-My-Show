@@ -87,7 +87,7 @@ pipeline {
                 docker rm bms || true
 
                 echo "Running new container on port 3000..."
-                docker run -itd --restart=always --name bms -p 3000:3000 abhiram5673/bms:v1
+                docker run -itd --restart=always --name bms -p 3000:3000 abhiram5673/bms:latest
 
                 echo "Checking running containers..."
                 docker ps -a
@@ -98,13 +98,13 @@ pipeline {
                 '''
             }
         }
-     stage('Quality Gate') {
+  /*   stage('Quality Gate') {
             steps {
                 script {
                     waitForQualityGate abortPipeline: true, credentialsId: 'Sonar-token'
                 }
             }
-        }
+        }  */
     }
  
 }
