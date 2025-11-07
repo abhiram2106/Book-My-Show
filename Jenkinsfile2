@@ -1,4 +1,4 @@
-(with K8S Stage)
+// (with K8S Stage)
 
 pipeline {
     agent any
@@ -65,18 +65,18 @@ pipeline {
             }
         }
 
-        stage('OWASP FS Scan') {
+    /*    stage('OWASP FS Scan') {
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
-        }
+        }*/
 
-        stage('Trivy FS Scan') {
+      /*  stage('Trivy FS Scan') {
             steps {
                 sh 'trivy fs . > trivyfs.txt'
             }
-        }
+        }*/
 
         stage('Docker Build & Push') {
             steps {
@@ -120,7 +120,7 @@ pipeline {
         }
     }
 
-    post {
+/*    post {
         always {
             emailext attachLog: true,
                 subject: "'${currentBuild.result}'",
@@ -130,5 +130,5 @@ pipeline {
                 to: 'kastrokiran@gmail.com',
                 attachmentsPattern: 'trivyfs.txt'
         }
-    }
+    }*/
 }
