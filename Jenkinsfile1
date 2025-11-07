@@ -68,10 +68,10 @@ pipeline {
                     withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
                         sh ''' 
                         echo "Building Docker image..."
-                        docker build --no-cache -itd abhiram2106/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
+                        docker build --no-cache -itd abhiram5673/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app
 
                         echo "Pushing Docker image to registry..."
-                        docker push abhiram2106/bms:latest
+                        docker push abhiram5673/bms:latest
                         '''
                     }
                 }
@@ -85,7 +85,7 @@ pipeline {
                 docker rm bms || true
 
                 echo "Running new container on port 3000..."
-                docker run -itd --restart=always --name bms -p 3000:3000 abhiram2106/bms:latest
+                docker run -itd --restart=always --name bms -p 3000:3000 abhiram5673/bms:latest
 
                 echo "Checking running containers..."
                 docker ps -a
