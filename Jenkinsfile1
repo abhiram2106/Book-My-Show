@@ -55,10 +55,10 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                    withDockerRegistry(credentialsId: 'docker-cred') {
                         sh ''' 
                         echo "Building Docker image..."
-                        docker build --no-cache -t abhiram5673/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app .
+                        docker build --no-cache -t abhiram5673/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app 
 
                         echo "Pushing Docker image to registry..."
                         docker push abhiram5673/bms:latest
