@@ -36,13 +36,6 @@ pipeline {
     }
 }
 
-        stage('Quality Gate') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: true, credentialsId: 'Sonar-token'
-                }
-            }
-        }
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -56,6 +49,11 @@ pipeline {
                     exit 1
                 fi
                 '''
+            }
+        }
+        stage('Trivy FS Scan') {
+            steps {
+                sh 'trivy fs . > trivyfs.txt'
             }
         }
         stage('Docker Build & Push') {
@@ -90,6 +88,13 @@ pipeline {
                 sleep 5  # Give time for the app to start
                 docker logs bms
                 '''
+            }
+        }
+     stage('Quality Gate') {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'Sonar-token'
+                }
             }
         }
     }
