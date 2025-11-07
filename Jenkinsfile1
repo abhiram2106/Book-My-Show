@@ -8,6 +8,8 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         PATH = "${SCANNER_HOME}/bin:${env.PATH}"
         DOCKER_HUB_USER = 'abhiram5673'
+        EKS_CLUSTER_NAME = 'abhi-eks'
+        AWS_REGION = 'ap-south-1'
     }
     stages {
         stage('Clean Workspace') {
@@ -52,6 +54,11 @@ pipeline {
                 '''
             }
         }
+         stage('Trivy FS Scan') {
+            steps {
+                sh 'trivy fs . > trivyfs.txt'
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -78,8 +85,32 @@ pipeline {
         }
     }
 }
+    stage('Deploy to EKS Cluster') {
+            steps {
+                script {
+                    sh '''
+                    echo "Verifying AWS credentials..."
+                    aws sts get-caller-identity
 
-        stage('Deploy to Container') {
+                    echo "Configuring kubectl for EKS cluster..."
+                    aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+
+                    echo "Verifying kubeconfig..."
+                    kubectl config view
+
+                    echo "Deploying application to EKS..."
+                    kubectl apply -f deployment.yml
+                    kubectl apply -f service.yml
+
+                    echo "Verifying deployment..."
+                    kubectl get pods
+                    kubectl get svc
+                    '''
+                }
+            }
+        }
+
+     /*   stage('Deploy to Container') {
             steps {
                 sh ''' 
                 echo "Stopping and removing old container..."
@@ -97,7 +128,7 @@ pipeline {
                 docker logs bms
                 '''
             }
-        }
+        }   */
   /*   stage('Quality Gate') {
             steps {
                 script {
