@@ -7,6 +7,10 @@ pipeline {
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         PATH = "${SCANNER_HOME}/bin:${env.PATH}"
+        DOCKER_HUB_USER = 'abhiram5673'
+        IMAGE_NAME = 'bms'
+        IMAGE_TAG = 'v1'
+           
     }
     stages {
         stage('Clean Workspace') {
@@ -51,19 +55,29 @@ pipeline {
                 '''
             }
         }
-
-        stage('Docker Build & Push') {
+        stage('Build Docker Image') {
             steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker-cred') {
-                        sh ''' 
-                        echo "Building Docker image..."
-                        docker build --no-cache -t abhiram5673/bms:latest -f bookmyshow-app/Dockerfile bookmyshow-app 
+                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+            }
+        }
 
-                        echo "Pushing Docker image to registry..."
-                        docker push abhiram5673/bms:latest
-                        '''
-                    }
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "⚡ Logging into DockerHub..."
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+                    echo "⚡ Tagging image..."
+                    docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+
+                    echo "⚡ Pushing image..."
+                    docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
                 }
             }
         }
@@ -75,7 +89,7 @@ pipeline {
                 docker rm bms || true
 
                 echo "Running new container on port 3000..."
-                docker run -itd --restart=always --name bms -p 3000:3000 abhiram5673/bms:latest
+                docker run -itd --restart=always --name bms -p 3000:3000 abhiram5673/bms:v1
 
                 echo "Checking running containers..."
                 docker ps -a
