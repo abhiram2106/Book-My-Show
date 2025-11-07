@@ -57,7 +57,10 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                sh '''
+                echo "🏗️ Building Docker image from bookmyshow-app directory..."
+                sudo docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f bookmyshow-app/Dockerfile bookmyshow-app
+                '''
             }
         }
 
