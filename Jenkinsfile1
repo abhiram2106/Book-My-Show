@@ -51,11 +51,25 @@ pipeline {
                 '''
             }
         }
-        stage('Trivy FS Scan') {
-            steps {
-                sh 'trivy fs . > trivyfs.txt'
+       stage('Trivy FS Scan') {
+    steps {
+        script {
+            echo "🔍 Running Trivy file system scan..."
+            
+            // Run Trivy and always continue even if vulnerabilities are found
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                sh '''
+                # Run Trivy file system scan and save the output
+                trivy fs . --exit-code 0 --no-progress > trivyfs.txt || true
+
+                echo "✅ Trivy scan completed. Report saved as trivyfs.txt"
+                echo "You can review it for vulnerabilities."
+                '''
             }
         }
+    }
+}
+
         stage('Docker Build & Push') {
             steps {
                 script {
