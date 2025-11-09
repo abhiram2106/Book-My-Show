@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bms-ingress
+  labels:
+    app: bms
+  annotations:
+    kubernetes.io/ingress.class: nginx  # Ensure you have nginx ingress controller installed
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: bms-service
+            port:
+              number: 80
+
+
